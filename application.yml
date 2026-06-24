@@ -6,11 +6,16 @@ server:
   shutdown: graceful
 
 spring:
+  zipkin:
+    enabled: false
   sql:
     init:
       schema-locations: classpath*:db/hsqldb/schema.sql
       data-locations: classpath*:db/hsqldb/data.sql
   sleuth:
+    enabled: false
+    sampler:
+      probability: 1.0
     sampler:
       probability: 1.0
   cloud:
