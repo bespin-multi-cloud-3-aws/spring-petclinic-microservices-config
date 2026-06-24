@@ -1,12 +1,10 @@
-# COMMON APPLICATION PROPERTIES
-
+# ============================================================
+# 1. COMMON APPLICATION PROPERTIES (맨 상단 공통 섹션)
+# ============================================================
 server:
-  # start services on random port by default
   port: 0
-  # The stop processing uses a timeout which provides a grace period during which existing requests will be allowed to complete but no new requests will be permitted
   shutdown: graceful
 
-# embedded database init, supports mysql too trough the 'mysql' spring profile
 spring:
   sql:
     init:
@@ -17,29 +15,32 @@ spring:
       probability: 1.0
   cloud:
     config:
-      # Allow the microservices to override the remote properties with their own System properties or config file
       allow-override: true
-      # Override configuration with any local property source
       override-none: true
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: none
 
-# Spring Boot 1.5 makes actuator secure by default
+  # ⭐ [여기에 추가 1] 백엔드가 상시 가질 대규모 커넥션 설정
+  datasource:
+    hikari:
+      maximum-pool-size: 40    # 너무 과하지 않게 각 Pod당 40으로 조율
+      minimum-idle: 10
+      connection-timeout: 3000 # 커넥션 대기 시간 3초로 대폭 단축 (스레드 락 방지)
+
+# ⭐ [여기에 추가 2] 동시 처리 톰캣 스레드 확장
+server:
+  tomcat:
+    threads:
+      max: 400
+      min-spare: 40
+
 management.security.enabled: false
-# Enable all Actuators and not only the two available by default /health and /info starting Spring Boot 2.0
 management.endpoints.web.exposure.include: "*"
-
-# Temporary hack required by the Spring Boot 2 / Spring Cloud Finchley branch
-# Waiting issue https://github.com/spring-projects/spring-boot/issues/13042
 spring.cloud.refresh.refreshable: false
-
-
-# Logging
 logging.level.org.springframework: INFO
 
-# Metrics
 management:
   endpoint:
     metrics:
@@ -60,7 +61,6 @@ management:
 
 eureka:
   instance:
-    # Register IP address instead of hostname to avoid resolution failures on Windows
     prefer-ip-address: true
 
 # Chaos Engineering
@@ -80,11 +80,15 @@ chaos:
       rest-controller: false
       service: false
 
+# ============================================================
+# 2. DOCKER ENVIRONMENT PROPERTIES (쿠버네티스/도커 환경 섹션)
+# ============================================================
 ---
 spring:
   config:
     activate:
       on-profile: docker
+  # ⭐ [가장 중요] 기존에 누락되거나 잘못 잡혀있던 컨피그 서버의 '쿠버네티스 내부 도메인' 명시
   cloud:
     config:
       uri: http://config-server:8888
