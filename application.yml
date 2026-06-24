@@ -1,9 +1,14 @@
 # ============================================================
 # 1. COMMON APPLICATION PROPERTIES (맨 상단 공통 섹션)
 # ============================================================
+# 💡 중복되었던 server 섹션을 하나로 합쳤습니다.
 server:
   port: 0
   shutdown: graceful
+  tomcat:
+    threads:
+      max: 400
+      min-spare: 40
 
 spring:
   zipkin:
@@ -16,8 +21,6 @@ spring:
     enabled: false
     sampler:
       probability: 1.0
-    sampler:
-      probability: 1.0
   cloud:
     config:
       allow-override: true
@@ -27,19 +30,12 @@ spring:
     hibernate:
       ddl-auto: none
 
-  # ⭐ [여기에 추가 1] 백엔드가 상시 가질 대규모 커넥션 설정
+  # 백엔드가 상시 가질 대규모 커넥션 설정
   datasource:
     hikari:
-      maximum-pool-size: 40    # 너무 과하지 않게 각 Pod당 40으로 조율
+      maximum-pool-size: 40
       minimum-idle: 10
-      connection-timeout: 3000 # 커넥션 대기 시간 3초로 대폭 단축 (스레드 락 방지)
-
-# ⭐ [여기에 추가 2] 동시 처리 톰캣 스레드 확장
-server:
-  tomcat:
-    threads:
-      max: 400
-      min-spare: 40
+      connection-timeout: 3000
 
 management.security.enabled: false
 management.endpoints.web.exposure.include: "*"
@@ -93,7 +89,6 @@ spring:
   config:
     activate:
       on-profile: docker
-  # ⭐ [가장 중요] 기존에 누락되거나 잘못 잡혀있던 컨피그 서버의 '쿠버네티스 내부 도메인' 명시
   cloud:
     config:
       uri: http://config-server:8888
