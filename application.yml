@@ -90,6 +90,4 @@ spring:
       uri: http://config-server:8888
 management:
   tracing:
-    export:
-      zipkin:
-        endpoint: "http://tracing-server:9411/api/v2/spans"
+    enabled: false
