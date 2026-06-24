@@ -33,9 +33,9 @@ spring:
   # 백엔드가 상시 가질 대규모 커넥션 설정
   datasource:
     hikari:
-      maximum-pool-size: 40
+      maximum-pool-size: 10
       minimum-idle: 10
-      connection-timeout: 3000
+      connection-timeout: 30000
 
 management.security.enabled: false
 management.endpoints.web.exposure.include: "*"
